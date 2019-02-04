@@ -1,0 +1,29 @@
+{
+  "name": "docsify-include-template",
+  "version": "1.0.0",
+  "description": "Docsify plugin. It includes template files.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kissybnts/docsify-include-template.git"
+  },
+  "keywords": [
+    "docsify",
+    "include",
+    "template",
+    "plugin"
+  ],
+  "author": "Masataka Kishida",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kissybnts/docsify-include-template/issues"
+  },
+  "homepage": "https://github.com/kissybnts/docsify-include-template#readme",
+  "devDependencies": {
+    "webpack": "^4.29.0",
+    "webpack-cli": "^3.2.1"
+  },
+  "resolutions": {
+    "terser": "3.14.1"
+  }
+}
