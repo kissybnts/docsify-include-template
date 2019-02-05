@@ -90,7 +90,7 @@ If your `README.md` file which includes template file is like below,
 This part will be inserted into `template.md` file.  
 You can use any markdown syntax.  
 <!-- v:e:hoge -->
-<!-- v:e:piyo -->
+<!-- v:s:piyo -->
 - piyo
 - piyopiyo
 - **piyo!**
