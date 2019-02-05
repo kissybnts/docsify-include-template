@@ -25,21 +25,68 @@ const getMarkdown = (p) => {
   return `:fire: File not found %[{ ${p} }] :fire:`;
 }
 
-const resolveTemplate = (template) => {
-  const keys = template.split(':');
-  if (keys.length === 1) {
-    return getMarkdown(template);
+const resolveConfigForMultiLines = (t) => {
+  const path = /\<\!-- *f:([\w\./_-]*) *--\>/g.exec(t)[1];
+  const ignore = /\<\!-- *o:ignore *--\>/g.test(t);
+  const regForVarName = /\<\!-- *v:s:([^( --\>)]*) *--\>/;
+  const regForVarVal = /\<\!-- *v:s:.* *--\>(?:\n|\r|\r\n)([\s\S]*)\<\!-- *v:e/;
+  const variables = t.match(/\<\!-- *v:s:([^( --\>)]*) *--\>(?:\n|\r|\r\n)([\s\S]*)\<\!-- *v:e:\1 *-->/g)
+    .reduce((acc, curr) => {
+      const k = regForVarName.exec(curr)[1];
+      const v = regForVarVal.exec(curr)[1];
+      acc[k] = v;
+      return acc;
+    }, {});
+  return {
+    path,
+    variables,
+    ignore,
+  };
+}
+
+const resolveMultiLines = (t) => {
+  const config = resolveConfigForMultiLines(t);
+  const md = getMarkdown(config.path);
+  const variables = config.variables;
+  const replaced = md.replace(/\<\!-- *v:([^( --\>)]*) *--\>/g, (_, b) => variables[b] || '');
+  if (config.ignore) {
+    return appendDocsifyIgnore(replaced);
   }
 
-  if (keys[1].trim() === 'ignore') {
-    const md = getMarkdown(keys[0]);
+  return replaced;
+}
+
+const resolveConfigForOneLine = (t) => {
+  const r = /(.*):ignore/g.exec(t);
+  if (r != null) {
+    return {
+      path: r[1].trim(),
+      ignore: true,
+    }
+  }
+
+  return {
+    path: t,
+    ignore: false,
+  }
+}
+
+const resolveOneLine = (template) => {
+  const config = resolveConfigForOneLine(template);
+
+  const md = getMarkdown(config.path);
+
+  if (config.ignore) {
     return appendDocsifyIgnore(md);
   }
+
+  return md;
 }
 
 const installIncludeTemplatePlugin = (hook, vm) => {
   hook.beforeEach(content => {
-    return content.replace(/%\[{([^\}]*)}\]/g, (_, path) => resolveTemplate(path.trim()));
+    const one = content.replace(/%\[{([^\}]*)}\]%/g, (_, path) => resolveOneLine(path.trim()));
+    return one.replace(/(\%\[\{)[\r\n]+([\s|\S]*?)[\r\n\s]+(\}\]\%)/g, (_, __, val) => resolveMultiLines(val));
   });
 }
 
