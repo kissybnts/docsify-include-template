@@ -85,7 +85,7 @@ const resolveOneLine = (template) => {
 
 const installIncludeTemplatePlugin = (hook, vm) => {
   hook.beforeEach(content => {
-    const one = content.replace(/%\[{([^\}]*)}\]%/g, (_, path) => resolveOneLine(path.trim()));
+    const one = content.replace(/%\[{([^\}\n\r]*)}\]%/g, (_, path) => resolveOneLine(path.trim()));
     return one.replace(/(\%\[\{)[\r\n]+([\s|\S]*?)[\r\n\s]+(\}\]\%)/g, (_, __, val) => resolveMultiLines(val));
   });
 }
